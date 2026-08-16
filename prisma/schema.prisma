@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id         String   @id @default(cuid())
+  ticker     String   @unique
+  name       String
+  sector     String?
+  industry   String?
+  marketCap  Float?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  prices     PriceDaily[]
+  scores     TacticalScore[]
+  watchItems WatchlistItem[]
+}
+
+model PriceDaily {
+  id        String   @id @default(cuid())
+  companyId String
+  date      DateTime
+  open      Float
+  high      Float
+  low       Float
+  close     Float
+  volume    Float
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, date])
+  @@index([date])
+}
+
+model FundamentalQuarterly {
+  id              String   @id @default(cuid())
+  ticker          String
+  quarter         DateTime
+  revenueGrowth   Float?
+  epsGrowth       Float?
+  grossMargin     Float?
+  operatingMargin Float?
+  fcfMargin       Float?
+  createdAt       DateTime @default(now())
+
+  @@index([ticker, quarter])
+}
+
+model AnalystEstimate {
+  id         String   @id @default(cuid())
+  ticker     String
+  asOf       DateTime
+  epsCurrent Float?
+  epsNext    Float?
+  revCurrent Float?
+  revNext    Float?
+
+  @@index([ticker, asOf])
+}
+
+model EarningsRevision {
+  id           String   @id @default(cuid())
+  ticker       String
+  asOf         DateTime
+  eps7d        Float?
+  eps30d       Float?
+  eps60d       Float?
+  eps90d       Float?
+  rev7d        Float?
+  rev30d       Float?
+  rev60d       Float?
+  rev90d       Float?
+  upRevisions  Int?
+  downRevisions Int?
+
+  @@index([ticker, asOf])
+}
+
+model Watchlist {
+  id        String         @id @default(cuid())
+  name      String
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  items     WatchlistItem[]
+
+  @@unique([name])
+}
+
+model WatchlistItem {
+  id          String    @id @default(cuid())
+  watchlistId String
+  companyId   String
+  createdAt   DateTime  @default(now())
+  watchlist   Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([watchlistId, companyId])
+}
+
+model FairValueModel {
+  id            String   @id @default(cuid())
+  ticker        String
+  asOf          DateTime
+  bearValue     Float
+  baseValue     Float
+  bullValue     Float
+  peValue       Float?
+  evEbitdaValue Float?
+  dcfValue      Float?
+  createdAt     DateTime @default(now())
+
+  @@index([ticker, asOf])
+}
+
+model TacticalScore {
+  id               String   @id @default(cuid())
+  companyId        String
+  asOf             DateTime
+  score            Float
+  rating           String
+  earningsScore    Float
+  fundamentalsScore Float
+  relStrengthScore Float
+  technicalScore   Float
+  valuationScore   Float
+  sectorScore      Float
+  fcfScore         Float
+  riskRewardScore  Float
+  company          Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, asOf])
+}
