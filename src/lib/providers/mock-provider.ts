@@ -101,7 +101,7 @@ export class MockProvider implements MarketDataProvider {
     return found.quote;
   }
 
-  async getHistory(ticker: string): Promise<PricePoint[]> {
+  async getHistory(ticker: string, _range: "1M" | "3M" | "6M" | "1Y" = "1Y"): Promise<PricePoint[]> {
     const found = byTicker[ticker.toUpperCase()] ?? byTicker.NVDA;
     return series(found.base);
   }

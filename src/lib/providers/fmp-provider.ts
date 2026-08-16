@@ -48,7 +48,7 @@ export class FmpProvider implements MarketDataProvider {
     }, () => fallback.getQuote(ticker));
   }
 
-  async getHistory(ticker: string): Promise<PricePoint[]> {
+  async getHistory(ticker: string, _range: "1M" | "3M" | "6M" | "1Y" = "1Y"): Promise<PricePoint[]> {
     return withFallback(async () => {
       const res = await fetch(`${baseUrl}/historical-price-eod/full?symbol=${ticker}&${apiKeyParam()}`);
       if (!res.ok) throw new Error("history failed");

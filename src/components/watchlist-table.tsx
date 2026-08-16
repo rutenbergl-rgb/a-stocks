@@ -21,7 +21,7 @@ export function WatchlistTable() {
       const snapshots = await Promise.all(
         wl.data.map(async (ticker) => {
           const res = await fetch(`/api/stocks/${ticker}/snapshot`);
-          const payload = (await res.json()) as { data: any };
+          const payload = (await res.json()) as { data: import("@/lib/types/snapshot").Snapshot };
           return {
             ticker,
             price: payload.data.quote.price,

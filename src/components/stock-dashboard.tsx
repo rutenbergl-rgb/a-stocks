@@ -5,7 +5,8 @@ import { MetricCard } from "@/components/metric-card";
 import { PriceChart } from "@/components/price-chart";
 import { TickerSearch } from "@/components/ticker-search";
 
-type Snapshot = any;
+import type { Snapshot } from "@/lib/types/snapshot";
+
 
 function fmtPercent(value: number | null | undefined) {
   if (value == null || Number.isNaN(value)) return "N/A";
