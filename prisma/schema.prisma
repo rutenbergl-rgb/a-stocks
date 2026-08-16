@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id         String   @id @default(cuid())
+  ticker     String   @unique
+  name       String
+  sector     String?
+  industry   String?
+  marketCap  BigInt?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  prices     PriceDaily[]
+  tactical   TacticalScore[]
+  valuations FairValueModel[]
+}
+
+model PriceDaily {
+  id        String   @id @default(cuid())
+  companyId String
+  date      DateTime
+  open      Decimal
+  high      Decimal
+  low       Decimal
+  close     Decimal
+  volume    BigInt
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, date])
+  @@index([date])
+}
+
+model FundamentalsQuarterly {
+  id               String   @id @default(cuid())
+  ticker           String
+  periodEnd        DateTime
+  revenue          Decimal?
+  eps              Decimal?
+  grossMargin      Decimal?
+  operatingMargin  Decimal?
+  freeCashFlow     Decimal?
+  createdAt        DateTime @default(now())
+
+  @@unique([ticker, periodEnd])
+  @@index([ticker, periodEnd])
+}
+
+model Watchlist {
+  id        String          @id @default(cuid())
+  name      String
+  createdAt DateTime        @default(now())
+  items     WatchlistItem[]
+}
+
+model WatchlistItem {
+  id         String   @id @default(cuid())
+  watchlistId String
+  ticker      String
+  createdAt   DateTime @default(now())
+  watchlist   Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+
+  @@unique([watchlistId, ticker])
+}
+
+model TacticalScore {
+  id               String   @id @default(cuid())
+  companyId        String
+  asOf             DateTime @default(now())
+  earningsRevisions Int
+  fundamentals     Int
+  relativeStrength Int
+  technicalTrend   Int
+  valuation        Int
+  sectorStrength   Int
+  fcfQuality       Int
+  riskReward       Int
+  total            Int
+  company          Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, asOf])
+}
+
+model FairValueModel {
+  id             String   @id @default(cuid())
+  companyId      String
+  asOf           DateTime @default(now())
+  method         String
+  bearValue      Decimal
+  baseValue      Decimal
+  bullValue      Decimal
+  assumptions    Json
+  company        Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, asOf])
+}
